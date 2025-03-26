@@ -1,4 +1,52 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Dynamic Table Component
+
+This project implements a feature-rich, interactive data table component built with Next.js, TypeScript, and shadcn/ui. The table is designed for prototyping data-intensive applications with a focus on user experience and interactivity.
+
+## Features
+
+### 1. Column Management
+- **Column Visibility**: Toggle the visibility of any column through the Columns dropdown menu
+- **Default Visibility**: First 10 columns are visible by default
+- **Fixed Columns**: Pin important columns to keep them visible while scrolling horizontally
+- **Fixed Column Grouping**: All pinned columns are grouped at the beginning of the table for better usability
+
+### 2. Sorting Functionality
+- **Header Sorting**: Click on any column header to sort by that column
+- **Sort Direction**: Toggle between ascending and descending order
+- **Sort Dropdown**: Use the dedicated Sort By dropdown to select sorting options
+- **Visual Indicators**: Clear icons showing the current sort direction
+
+### 3. Row Editing
+- **Inline Editing**: Click on any cell (except ID) to edit its content
+- **Edit Controls**: Confirmation (✓) and cancellation (✗) buttons for each edit
+- **Visual Feedback**: Hover states and edit icons indicate editable cells
+- **Mock API Integration**: Changes are logged to the console (simulating API calls)
+
+### 4. Pagination
+- **Page Navigation**: First, Previous, Next, and Last page buttons
+- **Page Selection**: Direct selection of specific pages
+- **Entry Information**: Shows current range and total number of entries
+- **Configurable**: Adjustable page size and current page
+
+### 5. Responsive Design
+- **Horizontal Scrolling**: Table scrolls horizontally when there are many columns
+- **Fixed Column Locking**: Pinned columns remain visible during horizontal scrolling
+- **Consistent Styling**: Maintains visual consistency across fixed and scrollable sections
+- **Mobile-Friendly**: Adapts to different screen sizes
+
+### 6. Visual Enhancements
+- **Alternating Row Colors**: Even/odd row styling for better readability
+- **Hover States**: Interactive elements show hover effects
+- **Shadow Effects**: Visual separation between fixed and scrollable sections
+- **Dark Mode Support**: Compatible with light and dark themes
+
+## Technical Implementation
+
+The table is built using a component-based architecture:
+
+- **DataTable**: Main component that handles rendering and state management
+- **TableFilters**: Controls for filtering, column visibility, and sorting
+- **Types**: Strong TypeScript typing for all table-related data structures
 
 ## Getting Started
 
@@ -16,13 +64,17 @@ bun dev
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+## Prototyping Mode
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+This project is currently in prototyping mode with the following constraints:
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+1. Frontend development only - creating UI mockups without backend integration
+2. Using dummy JSON data to represent application data
+3. Implementing navigation between components
+4. Making buttons responsive
+5. No backend logic connections
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+This is a pure UI/UX prototyping phase to visualize the application before implementing actual functionality.
 
 ## Learn More
 
