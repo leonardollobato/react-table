@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
-import { Geist, Geist_Mono } from 'next/font/google';
-import DataTable from '../components/DataTable';
-import TableFilters from '../components/TableFilters';
-import { TableData, SortState, FixedColumn } from '../types';
+import React, { useState, useEffect } from 'react';
+import Head from 'next/head';
+import { TableData, SortDirection, FixedColumn, ColumnVisibility, TablePaginationOptions, EditableCell } from '../types';
 import { generateMockData, getAllBrands } from '../utils/mockData';
+import TableFilters from '../components/TableFilters';
+import DataTable from '../components/DataTable';
+import { Geist, Geist_Mono } from 'next/font/google';
+import { Card, CardContent, CardHeader, CardTitle } from '../components/ui/card';
 
 const geistSans = Geist({
   variable: '--font-geist-sans',
@@ -17,164 +19,193 @@ const geistMono = Geist_Mono({
 
 export default function Home() {
   const [data, setData] = useState<TableData[]>([]);
-  const [filteredData, setFilteredData] = useState<TableData[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  
-  // Filters
   const [brandFilter, setBrandFilter] = useState('');
   const [customerIdFilter, setCustomerIdFilter] = useState('');
-  const [sortByColumn, setSortByColumn] = useState<keyof TableData | null>(null);
+  const [sortColumn, setSortColumn] = useState<keyof TableData | null>(null);
+  const [sortDirection, setSortDirection] = useState<SortDirection>('asc');
+  const [fixedColumns, setFixedColumns] = useState<FixedColumn[]>(['id', 'customerId', 'brand']);
+  const [availableBrands, setAvailableBrands] = useState<string[]>([]);
+  const [editingCell, setEditingCell] = useState<EditableCell | null>(null);
   
-  // Sorting
-  const [sortState, setSortState] = useState<SortState>({
-    column: null,
-    direction: null,
+  // Set all 10 columns to be visible by default
+  const [columnVisibility, setColumnVisibility] = useState<ColumnVisibility>({
+    id: true,
+    customerId: true,
+    brand: true,
+    product: true,
+    price: true,
+    quantity: true,
+    status: true,
+    date: true,
+    location: true,
+    category: true,
   });
   
-  // Fixed columns
-  const [fixedColumns, setFixedColumns] = useState<FixedColumn[]>(['id', 'customerId', 'brand']);
-  
-  // Handle toggling fixed columns
+  const [pagination, setPagination] = useState<TablePaginationOptions>({
+    enabled: true,
+    pageSize: 10,
+    currentPage: 1,
+  });
+
+  const fetchData = () => {
+    setIsLoading(true);
+    // Simulate API call with setTimeout
+    setTimeout(() => {
+      const mockData = generateMockData(50);
+      setData(mockData);
+      
+      // Extract unique brands for filter
+      const brands = [...new Set(mockData.map(item => item.brand))];
+      setAvailableBrands(brands);
+      
+      setIsLoading(false);
+    }, 1000);
+  };
+
+  // Filter data based on selected filters
+  const filteredData = data.filter(item => {
+    if (brandFilter && item.brand !== brandFilter) return false;
+    if (customerIdFilter && !item.customerId.includes(customerIdFilter)) return false;
+    return true;
+  });
+
+  // Sort data based on selected column and direction
+  const sortedData = [...filteredData].sort((a, b) => {
+    if (!sortColumn) return 0;
+    
+    const aValue = a[sortColumn];
+    const bValue = b[sortColumn];
+    
+    if (typeof aValue === 'string' && typeof bValue === 'string') {
+      return sortDirection === 'asc' 
+        ? aValue.localeCompare(bValue) 
+        : bValue.localeCompare(aValue);
+    }
+    
+    if (typeof aValue === 'number' && typeof bValue === 'number') {
+      return sortDirection === 'asc' 
+        ? aValue - bValue 
+        : bValue - aValue;
+    }
+    
+    return 0;
+  });
+
+  const handleSort = (column: keyof TableData) => {
+    if (sortColumn === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortColumn(column);
+      setSortDirection('asc');
+    }
+  };
+
   const handleToggleFixedColumn = (column: FixedColumn) => {
     if (fixedColumns.includes(column)) {
-      // Don't allow removing all fixed columns - keep at least one
       if (fixedColumns.length > 1) {
         setFixedColumns(fixedColumns.filter(col => col !== column));
       }
     } else {
-      // Limit to maximum 3 fixed columns
-      if (fixedColumns.length < 3) {
-        setFixedColumns([...fixedColumns, column]);
-      } else {
-        // Replace the last fixed column
-        const newFixedColumns = [...fixedColumns];
-        newFixedColumns.pop();
-        newFixedColumns.push(column);
-        setFixedColumns(newFixedColumns);
-      }
+      setFixedColumns([...fixedColumns, column]);
     }
   };
-  
-  // Handle sorting
-  const handleSort = (column: keyof TableData) => {
-    setSortState(prevState => {
-      if (prevState.column === column) {
-        // Toggle direction if same column
+
+  const handleToggleColumnVisibility = (column: keyof TableData) => {
+    setColumnVisibility(prev => ({
+      ...prev,
+      [column]: !prev[column as string]
+    }));
+  };
+
+  const handleCellEdit = (editableCell: EditableCell) => {
+    setEditingCell(editableCell);
+  };
+
+  const handleCellEditCancel = () => {
+    setEditingCell(null);
+  };
+
+  const handleCellEditConfirm = () => {
+    if (!editingCell) return;
+
+    // Update the data with the edited value
+    const updatedData = data.map(item => {
+      if (item.id === editingCell.rowId) {
         return {
-          column,
-          direction: prevState.direction === 'asc' ? 'desc' : prevState.direction === 'desc' ? null : 'asc',
-        };
-      } else {
-        // New column, start with ascending
-        return {
-          column,
-          direction: 'asc',
+          ...item,
+          [editingCell.column]: editingCell.value
         };
       }
+      return item;
     });
+
+    // Mock API call
+    console.log('Updating cell:', {
+      rowId: editingCell.rowId,
+      column: editingCell.column,
+      oldValue: editingCell.originalValue,
+      newValue: editingCell.value
+    });
+
+    // Update the state
+    setData(updatedData);
+    setEditingCell(null);
   };
-  
-  // Handle filter changes
-  const handleBrandFilterChange = (brand: string) => {
-    setBrandFilter(brand);
-  };
-  
-  const handleCustomerIdFilterChange = (customerId: string) => {
-    setCustomerIdFilter(customerId);
-  };
-  
-  const handleSortByColumnChange = (column: keyof TableData | null) => {
-    setSortByColumn(column);
-    if (column) {
-      setSortState({
-        column,
-        direction: 'asc',
-      });
-    }
-  };
-  
-  // Fetch data
-  const fetchData = () => {
-    setIsLoading(true);
-    // Simulate API call
-    setTimeout(() => {
-      const newData = generateMockData(50);
-      setData(newData);
-      setIsLoading(false);
-    }, 1000);
-  };
-  
-  // Apply filters and sorting
-  useEffect(() => {
-    let result = [...data];
-    
-    // Apply brand filter
-    if (brandFilter) {
-      result = result.filter(item => item.brand === brandFilter);
-    }
-    
-    // Apply customer ID filter
-    if (customerIdFilter) {
-      result = result.filter(item => 
-        item.customerId.toLowerCase().includes(customerIdFilter.toLowerCase())
-      );
-    }
-    
-    // Apply sorting
-    if (sortState.column && sortState.direction) {
-      result.sort((a, b) => {
-        const aValue = a[sortState.column!];
-        const bValue = b[sortState.column!];
-        
-        // Handle different types of values
-        if (typeof aValue === 'number' && typeof bValue === 'number') {
-          return sortState.direction === 'asc' ? aValue - bValue : bValue - aValue;
-        } else {
-          const aString = String(aValue).toLowerCase();
-          const bString = String(bValue).toLowerCase();
-          
-          return sortState.direction === 'asc' 
-            ? aString.localeCompare(bString)
-            : bString.localeCompare(aString);
-        }
-      });
-    }
-    
-    setFilteredData(result);
-  }, [data, brandFilter, customerIdFilter, sortState]);
-  
+
   return (
-    <div className={`min-h-screen bg-gray-50 p-4 md:p-8 ${geistSans.variable} ${geistMono.variable}`}>
+    <div className={`min-h-screen bg-background p-4 md:p-8 ${geistSans.variable} ${geistMono.variable}`}>
+      <Head>
+        <title>Dynamic Table</title>
+        <meta name="description" content="Dynamic table with sorting and filtering" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
+
       <div className="max-w-7xl mx-auto">
-        <header className="mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Dynamic Data Table</h1>
-          <p className="text-gray-600">A responsive table with sorting, filtering, and fixed columns</p>
-        </header>
+        <Card className="mb-8">
+          <CardHeader>
+            <CardTitle className="text-2xl">Dynamic Data Table</CardTitle>
+            <p className="text-muted-foreground">A responsive table with sorting, filtering, and fixed columns</p>
+          </CardHeader>
+        </Card>
         
         <main>
-          <TableFilters 
+          <TableFilters
             brandFilter={brandFilter}
-            onBrandFilterChange={handleBrandFilterChange}
+            onBrandFilterChange={setBrandFilter}
             customerIdFilter={customerIdFilter}
-            onCustomerIdFilterChange={handleCustomerIdFilterChange}
-            sortByColumn={sortByColumn}
-            onSortByColumnChange={handleSortByColumnChange}
-            availableBrands={getAllBrands()}
+            onCustomerIdFilterChange={setCustomerIdFilter}
+            sortByColumn={sortColumn}
+            onSortByColumnChange={setSortColumn}
+            availableBrands={availableBrands}
             isLoading={isLoading}
             onFetchData={fetchData}
+            columnVisibility={columnVisibility}
+            onToggleColumnVisibility={handleToggleColumnVisibility}
+            pagination={pagination}
+            onPaginationChange={setPagination}
           />
           
-          <DataTable 
-            data={filteredData}
+          <DataTable
+            data={sortedData}
             isLoading={isLoading}
             fixedColumns={fixedColumns}
             onToggleFixedColumn={handleToggleFixedColumn}
-            sortState={sortState}
+            sortColumn={sortColumn}
+            sortDirection={sortDirection}
             onSort={handleSort}
+            columnVisibility={columnVisibility}
+            onToggleColumnVisibility={handleToggleColumnVisibility}
+            pagination={pagination}
+            onPaginationChange={setPagination}
+            editingCell={editingCell}
+            onCellEdit={handleCellEdit}
+            onCellEditCancel={handleCellEditCancel}
+            onCellEditConfirm={handleCellEditConfirm}
           />
         </main>
         
-        <footer className="mt-8 text-center text-sm text-gray-500">
+        <footer className="mt-8 text-center text-sm text-muted-foreground">
           <p> {new Date().getFullYear()} Dynamic Table Demo</p>
         </footer>
       </div>
