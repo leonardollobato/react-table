@@ -2,8 +2,6 @@
 
 This project implements a feature-rich, interactive data table component built with Next.js, TypeScript, and shadcn/ui. The table is designed for prototyping data-intensive applications with a focus on user experience and interactivity.
 
-![Table Overview](/public/table-preview/table-overview.png)
-
 ## Features
 
 ### 1. Column Management
@@ -11,9 +9,6 @@ This project implements a feature-rich, interactive data table component built w
 - **Default Visibility**: First 10 columns are visible by default
 - **Fixed Columns**: Pin important columns to keep them visible while scrolling horizontally
 - **Fixed Column Grouping**: All pinned columns are grouped at the beginning of the table for better usability
-
-![Table Fixed Column](/public/table-preview/table-fixed-column.png)
-![Table Columns Selection](/public/table-preview/table-columns-selection.png)
 
 ### 2. Sorting Functionality
 - **Header Sorting**: Click on any column header to sort by that column
@@ -26,9 +21,6 @@ This project implements a feature-rich, interactive data table component built w
 - **Edit Controls**: Confirmation (✓) and cancellation (✗) buttons for each edit
 - **Visual Feedback**: Hover states and edit icons indicate editable cells
 - **Mock API Integration**: Changes are logged to the console (simulating API calls)
-
-![Table Editable](/public/table-preview/table-editable-column-with-confirmation.png)
-![Table Editable](/public/table-preview/table-editable-console.png)
 
 ### 4. Pagination
 - **Page Navigation**: First, Previous, Next, and Last page buttons
@@ -61,8 +53,13 @@ The table is built using a component-based architecture:
 First, run the development server:
 
 ```bash
-npm install
 npm run dev
+# or
+yarn dev
+# or
+pnpm dev
+# or
+bun dev
 ```
 
 Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
