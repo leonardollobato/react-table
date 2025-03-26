@@ -2,7 +2,7 @@
 
 This project implements a feature-rich, interactive data table component built with Next.js, TypeScript, and shadcn/ui. The table is designed for prototyping data-intensive applications with a focus on user experience and interactivity.
 
-![Table Overview](https://github.com/leonardollobato/react-table/blob/main/assets/table-columns-selection.png)
+![Table Overview](/public/table-preview/table-overview.png)
 
 ## Features
 
