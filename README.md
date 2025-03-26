@@ -12,6 +12,9 @@ This project implements a feature-rich, interactive data table component built w
 - **Fixed Columns**: Pin important columns to keep them visible while scrolling horizontally
 - **Fixed Column Grouping**: All pinned columns are grouped at the beginning of the table for better usability
 
+![Table Fixed Column](/public/table-preview/table-fixed-column.png)
+![Table Columns Selection](/public/table-preview/table-columns-selection.png)
+
 ### 2. Sorting Functionality
 - **Header Sorting**: Click on any column header to sort by that column
 - **Sort Direction**: Toggle between ascending and descending order
@@ -23,6 +26,9 @@ This project implements a feature-rich, interactive data table component built w
 - **Edit Controls**: Confirmation (✓) and cancellation (✗) buttons for each edit
 - **Visual Feedback**: Hover states and edit icons indicate editable cells
 - **Mock API Integration**: Changes are logged to the console (simulating API calls)
+
+![Table Editable](/public/table-preview/table-editable-column-with-confirmation.png)
+![Table Editable](/public/table-preview/table-editable-console.png)
 
 ### 4. Pagination
 - **Page Navigation**: First, Previous, Next, and Last page buttons
